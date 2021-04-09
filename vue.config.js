@@ -19,11 +19,11 @@ switch (process.env.NODE_ENV) {
         // process.env.VUE_APP_FLURO_ENV = 'staging';
 
         // process.env.VUE_APP_REMOTE_URL = 'https://vadmin.fluro.io';
-        process.env.VUE_APP_REMOTE_URL = 'https://liveplan.fluro.site';
+        process.env.VUE_APP_REMOTE_URL = 'https://live.fluro.site';
         break;
     default:
         process.env.VUE_APP_FLURO_ENV = 'production';
-        process.env.VUE_APP_REMOTE_URL = '';
+        process.env.VUE_APP_REMOTE_URL = 'https://live.fluro.site';
         break;
 }
 

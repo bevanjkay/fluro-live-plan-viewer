@@ -8,15 +8,18 @@
                 <h2 class="title">{{ item.title }}</h2>
                 <h4 class="subtitle">{{ item.startDate | formatDate('h:mma dddd Do MMM YYYY ') }}</h4>
             </div>
-            <div>
+            <div v-if="inControl">
                 <b-button :disabled="!previous" @click="updateCurrent(previous)" >Previous</b-button> | <b-button @click="updateCurrent(next)" :disabled="!next">Next</b-button></div>
             </div>
-            <div>Click or tap plan row to set as current</div>
-            <div class="block">
-                    <label class="checkbox" style="margin-right: 10px" v-for="column in customColumns" :key="column">
-                        <input type="checkbox" @change="hideColumns.includes(column) ? hideColumns = hideColumns.filter(e => e !== column) : hideColumns.push(column)" :checked="!hideColumns.includes(column)">
-                        {{ column }}
-                    </label>
+            <div class="level">
+            <div>
+                <div>Show the following note categories</div>
+                        <label class="checkbox" style="margin-right: 10px" v-for="column in customColumns" :key="column">
+                            <input type="checkbox" @change="hideColumns.includes(column) ? hideColumns = hideColumns.filter(e => e !== column) : hideColumns.push(column)" :checked="!hideColumns.includes(column)">
+                            {{ column }}
+                        </label>
+                </div>
+                <b-button :type="inControl ? 'is-danger' : 'is-info is-light'" @click="inControl = !inControl">{{ inControl ? 'Release Control' : 'Take Control' }}</b-button>
             </div>
             <table class="table is-striped">
                 <thead>
@@ -119,11 +122,20 @@ export default {
             previous: null,
             loading: true,
             currentTimeLeft: 0,
-            inControl: true,
+            inControl: false,
             hideColumns: []
         }
     },
     methods: {
+        warning() {
+                this.$toast.open({
+                    message: '<b>Note:</b> You must take control to action the live plan',
+                    type: 'is-warning',
+                    position: 'is-top',
+                    duration: 4000,
+                    queue: false
+                })
+        },
         setTimeLeft() {
             if (!this.currentItem) return
             // return `Now: ${now} – Set: ${this.item.data.time} – Duration: ${this.currentItem.duration}`;
@@ -187,7 +199,10 @@ export default {
         },
         updateCurrent(schedule) {
 
-            if (!this.inControl) return
+            if (!this.inControl) {
+                this.warning();
+                return;
+            }
 
             let self = this;
 

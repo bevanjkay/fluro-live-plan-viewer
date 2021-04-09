@@ -1,6 +1,6 @@
 <template>
     <nav style="padding: 10px;">
-        <b-button tag="router-link" to="/" style="display: inline-block;">See all Services</b-button>
+        <b-button tag="router-link" to="/">See all Services</b-button>
         <!-- <a @click="showHelp()"><b-icon pack="fas" icon="question" /></a> -->
     </nav>
 </template>
