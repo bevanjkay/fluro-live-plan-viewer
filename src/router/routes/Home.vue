@@ -1,10 +1,10 @@
 <template>
-    <div class="container">
+    <div class="container" style="margin-top: 20px">
         <div v-for="service in services" class="box content">
             <h2>{{ service.title }}</h2>
-            <p>{{ service.startDate }}</p>
+            <p>{{ service.startDate | formatDate('h:mma dddd Do MMM YYYY ') }}</p>
             <div v-for="plan in service.plans">
-                <router-link :to="{name: 'plan', params: { id: plan._id }}">View live plan</router-link>
+                <b-button primary type="primary" tag="router-link" :to="{name: 'plan', params: { id: plan._id }}">View live plan</b-button>
             </div>
         </div>
     </div>

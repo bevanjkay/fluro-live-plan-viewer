@@ -2,6 +2,7 @@
     <div class="curtain">
         <!-- <h1>{{title}}</h1> -->
         <div class="form">
+            <h1 class="title">Login to View Live Service Plans</h1>
             <b-field label="Username">
                 <b-input type="email" v-model="credentials.username" placeholder="you@youremail.com"></b-input>
             </b-field>

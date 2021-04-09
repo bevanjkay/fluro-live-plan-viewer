@@ -1,42 +1,31 @@
 <template>
     <div class="container  is-fluid" style="margin-top:10px;">
+        <b-loading :active="loading"></b-loading>
         <div v-if="!loading" class="columns">
-            <div class="column is-one-third">
-            <div class="box content is-large">
-                <span class="tag is-dark">Current Item</span>
-                <div v-if="currentItem">
-                    <h2>{{ currentItem.title }}</h2>
-                    <h2 :class="currentTimeLeft < 0 ? 'overtime' : ''">{{ currentTimeLeft > 0 ? $fluro.video.hhmmss(currentTimeLeft) : '-' + $fluro.video.hhmmss(-currentTimeLeft)  }}</h2>
-                    <div v-html="currentItem.detail" />
-                    <div class="notes" v-if="currentItem.notes">
-                        <div v-for="(note, title) in currentItem.notes">
-                            <h5 class="text-bold">{{ title }}</h5>
-                            <div v-html="note" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="box content is-medium"> 
-                <span class="tag is-dark">Next Item</span>
-                <div v-if="nextItem">
-                    <h4>{{ nextItem.title }}</h4>
-                    <p>{{ nextItem.duration }}</p>
-                </div>
-            </div>
-            </div>
             <div class="column">
                 <div class="level">
-            <h2>{{ item.title }}</h2>
-            <div><button class="button" :disabled="!previous" @click="updateCurrent(previous)" >Previous</button> | <button class="button" @click="updateCurrent(next)" :disabled="!next">Next</button></div>
+            <div>
+                <h2 class="title">{{ item.title }}</h2>
+                <h4 class="subtitle">{{ item.startDate | formatDate('h:mma dddd Do MMM YYYY ') }}</h4>
             </div>
-            <div>Click plan row to move to section</div>
-            <table class="table is-striped is-hoverable">
+            <div>
+                <b-button :disabled="!previous" @click="updateCurrent(previous)" >Previous</b-button> | <b-button @click="updateCurrent(next)" :disabled="!next">Next</b-button></div>
+            </div>
+            <div>Click or tap plan row to set as current</div>
+            <div class="block">
+                    <label class="checkbox" style="margin-right: 10px" v-for="column in customColumns" :key="column">
+                        <input type="checkbox" @change="hideColumns.includes(column) ? hideColumns = hideColumns.filter(e => e !== column) : hideColumns.push(column)" :checked="!hideColumns.includes(column)">
+                        {{ column }}
+                    </label>
+            </div>
+            <table class="table is-striped">
                 <thead>
                     <tr>
                         <th>Time</th>
                         <th>Duration</th>
                         <th>Title</th>
                         <th>Notes</th>
+                        <th v-for="column in filteredColumns">{{ column }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,11 +35,35 @@
                 <td>{{ schedule.duration | mins }}</td>
                 <td>{{ schedule.title }}</td>
                 <td><div v-html="schedule.detail"/></td>
+                <td v-for="column in filteredColumns"><div v-html="schedule.notes[column]" v-if="schedule.notes" /></td>
             </tr>
             </tbody>
             </table>
             </div>
             <!-- <pre><code>{{ item }}</code></pre> -->
+            <div class="column is-one-third">
+            <div class="box content is-medium">
+                <span class="tag is-dark">Current Item</span>
+                <div v-if="currentItem">
+                    <h2 class="title">{{ currentItem.title }}</h2>
+                    <h2 class="title" :class="currentTimeLeft < 0 ? 'overtime' : ''">{{ currentTimeLeft > 0 ? $fluro.video.hhmmss(currentTimeLeft) : '-' + $fluro.video.hhmmss(-currentTimeLeft)  }}</h2>
+                    <div v-html="currentItem.detail" />
+                    <div class="notes" v-if="currentItem.notes">
+                        <div v-for="(note, title) in currentItem.notes">
+                            <div class="">{{ title }}</div>
+                            <div v-html="note" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box content"> 
+                <span class="tag is-dark">Next Item</span>
+                <div v-if="nextItem">
+                    <h4>{{ nextItem.title }}</h4>
+                    <p>{{ nextItem.duration }}</p>
+                </div>
+            </div>
+            </div>
         </div>
     </div>
 </template>
@@ -72,6 +85,21 @@ export default {
             if (!this.item.schedules) return null;
             return this.item.schedules.filter(schedule => schedule._id + '-' + schedule.title.split(' ')[0].toLowerCase() == this.next)[0]
         },
+        customColumns() {
+            let columns = [];
+            if (!this.item.schedules) return null;
+            this.item.schedules.forEach(schedule => {
+                if (!schedule.notes) return;
+                for (const title in schedule.notes) {
+                    if (!columns.includes(title)) columns.push(title);
+                }
+            })
+            return columns.sort();
+        },
+        filteredColumns() {
+            if (!this.customColumns) return
+            return this.customColumns.filter(column => !this.hideColumns.includes(column));
+        },
         times() {
             return _.map(this.model.schedules, 'duration').join('-');
         },
@@ -92,6 +120,7 @@ export default {
             loading: true,
             currentTimeLeft: 0,
             inControl: true,
+            hideColumns: []
         }
     },
     methods: {
@@ -274,6 +303,10 @@ export default {
     font-size: 95%;
     letter-spacing: 2px;
     }
+
+    &:hover {
+        background: inherit !important;
+    }
 }
 .start {
     background: rgba(green, 0.9);
@@ -288,6 +321,6 @@ export default {
 }
 
 .overtime {
-    color: red;
+    color: red !important;
 }
 </style>
