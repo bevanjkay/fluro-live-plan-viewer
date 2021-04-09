@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <div v-for="service in services">
+    <div class="container">
+        <div v-for="service in services" class="box content">
             <h2>{{ service.title }}</h2>
             <p>{{ service.startDate }}</p>
             <div v-for="plan in service.plans">
@@ -27,10 +27,15 @@ export default {
 
                 return new Promise((resolve, reject) => {
 
-                    self.$fluro.api.get('/content/service?status=active')
+                    self.$fluro.api.get('/content/event?status=active', {
+                        params: {
+                            sort: 'startDate',
+                            status: 'active',
+                            allDefinitions: true
+                        }
+                    })
                         .then((res) => {
-                            console.log(res.data);
-                            resolve(res.data);
+                            resolve(res.data.filter(e => e.plans.length));
                         })
                         .catch(function(err) {
                             console.log(err);
@@ -43,3 +48,6 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+</style>
